@@ -9,12 +9,20 @@ import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
 
+    // 1 => red, 2=> yellow, 0 => empty
+    String activePlayer = "1";
 
-    public void btnClicked(View view){
-        Button btn = (Button) findViewById(R.id.btnPlayAgain);
-        Log.i("Info","Button clicked");
+    public void diveIn(View view){
 
-}
+        ImageView piece = (ImageView)view;
+
+        // piece movement
+        piece.setImageResource(R.drawable.red);
+        piece.setTranslationY(-1500);
+        piece.animate().rotation(2400).translationYBy(1500);
+
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
