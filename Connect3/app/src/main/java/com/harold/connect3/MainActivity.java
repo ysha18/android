@@ -12,13 +12,11 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    //TODO: IN CASE OF DRAW
-
     // 1 => red, 2=> yellow, 0 => empty
     int activePlayer = 1;
     int[] gameState = {0,0,0,0,0,0,0,0,0,0};
     int[][] winningPositions = {{1,2,3}, {4,5,6}, {7,8,9}, {1,4,7}, {2,5,8}, {3,6,9}, {1,5,9}, {3,5,7}};
-    boolean gameOver = false;
+    boolean gameOver = false, emptyField = true;
     int winner = 0;
 
     public void diveIn(View view){
@@ -45,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
                 piece.animate().rotation(3600).translationYBy(1500);
 
 
+                Button btnPlayAgain = (Button) findViewById(R.id.btnPlayAgain);
+                TextView txtWinner = (TextView) findViewById(R.id.txtWinner);
+
                 // check winning position
                 for(int[] wp : winningPositions){
                     if(gameState[wp[0]] == gameState[wp[1]] && gameState[wp[1]]==gameState[wp[2]] && gameState[wp[0]]!=0){
@@ -52,8 +53,6 @@ public class MainActivity extends AppCompatActivity {
                         winner = gameState[wp[0]];
 
                         // ask for play again
-                        Button btnPlayAgain = (Button) findViewById(R.id.btnPlayAgain);
-                        TextView txtWinner = (TextView) findViewById(R.id.txtWinner);
                         txtWinner.setText(winner==1 ? "RED WINS" : "YELLOW WINS");
                         btnPlayAgain.animate().alpha(1);
                         txtWinner.animate().alpha(1);
@@ -61,8 +60,25 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                 }
-            }
 
+                // check draw
+                if(!gameOver){
+                    for(int i=1; i<gameState.length; i++){
+                        if(gameState[i]==0){
+                            emptyField = false;
+                            break;
+                        }
+                    }
+                    if(emptyField){
+                        // draw
+                        txtWinner.setText("It's a draw!");
+                        btnPlayAgain.animate().alpha(1);
+                        txtWinner.animate().alpha(1);
+                        gameOver = true;
+                    } else
+                        emptyField = true;
+                }
+            }
         }
 
     }
