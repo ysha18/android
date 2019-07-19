@@ -20,10 +20,10 @@ public class MainActivity extends AppCompatActivity {
     Button btnPlayAgain,btnTimer, btnScore,ans1,ans2,ans3,ans4;
     TextView txtResult,txtQuestion;
     CountDownTimer cdt;
-    final int time = 11000;
+    final int time = 5000;
     Random rand = new Random();
     String correctAnswer="0";
-    int nbAttemps=0,nbCorrect=0;
+    int nbAttemps=0,nbCorrect=0, gameStatus = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +43,11 @@ public class MainActivity extends AppCompatActivity {
         ans2 = findViewById(R.id.ans2);
         ans3 = findViewById(R.id.ans3);
         ans4 = findViewById(R.id.ans4);
-
-
     }
 
     public void start(View view){
         // visibility of the game
+        nbAttemps=0;nbCorrect=0; gameStatus = 1;
         goLayout.setVisibility(View.INVISIBLE);
         btnPlayAgain.setVisibility(View.INVISIBLE);
         txtResult.setVisibility(View.INVISIBLE);
@@ -71,6 +70,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 // Display score
+                gameStatus = 0;
+                double perc = Double.parseDouble(String.valueOf(nbCorrect)) / Double.parseDouble(String.valueOf(nbAttemps)) * 100;
+                txtResult.setText("Your score: " + Math.round(perc)+"%");
+                btnPlayAgain.setVisibility(View.VISIBLE);
             }
         }.start();
     }
@@ -87,20 +90,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void checkCorrectAnswer(View view){
-        Button btnClicked = (Button) view;
-        txtResult.setVisibility(View.VISIBLE);
-        nbAttemps++;
-        if(btnClicked.getText().toString().equals(correctAnswer)){
-            // correct
-            txtResult.setText("CORRECT :)");
-            nbCorrect++;
-        } else{
-            // false
-            txtResult.setText("WRONG :(");
+        if(gameStatus==1){
+            Button btnClicked = (Button) view;
+            txtResult.setVisibility(View.VISIBLE);
+            nbAttemps++;
+            if(btnClicked.getText().toString().equals(correctAnswer)){
+                // correct
+                txtResult.setText("CORRECT :)");
+                nbCorrect++;
+            } else{
+                // false
+                txtResult.setText("WRONG :(");
+            }
+            updateScore();
+            // generate new question
+            generateQuestion();
         }
-        updateScore();
-        // generate new question
-        generateQuestion();
+
     }
 
     private void updateScore() {
