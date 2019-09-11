@@ -5,8 +5,10 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +31,12 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     Bitmap myBitmap;
     Button btn1,btn2,btn3,btn4;
+    List<Integer> positions;
+    Random rand = new Random();
+    List<String> celebsNameAndLink = new ArrayList<>();
+    List<String> celebsName = new ArrayList<>();
+    Map<String, String> mapCelebs = new HashMap<>();
+    String correctCeleb;
 
     public class DownloadTask extends AsyncTask<String,Void,String>{
 
@@ -120,12 +128,9 @@ public class MainActivity extends AppCompatActivity {
         /*
         *  Using String manipulation, create 2 maps: id->name and id->url
         */
-        Map<String, String> mapCelebs = new HashMap<>();
 
         Pattern p = Pattern.compile("<div class=\"image\">"+"(?s)"+"(.*?)"+"</div>");
         Matcher m = p.matcher(result);
-        List<String> celebsNameAndLink = new ArrayList<>();
-        List<String> celebsName = new ArrayList<>();
 
         while(m.find()){
 //            System.out.println(m.group(1));
@@ -149,43 +154,76 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        // generate and display
+        fillUiIn();
+
+    }
+
+    private void fillUiIn() throws InterruptedException {
 
         /*
          * randomly get id to display, get name and url
          */
-        Random rand = new Random();
         String selectedCeleb = celebsName.get(rand.nextInt(celebsNameAndLink.size()+1));
 
         DownloadImageTask imageTask = new DownloadImageTask();
         imageTask.execute(mapCelebs.get(selectedCeleb));
-        Thread.sleep(3000);
+        Thread.sleep(2000);
 
-        int celebPosition = 0;
-
-        do{
-            celebPosition = rand.nextInt(5);
-        } while (celebPosition==0);
-
-        switch (celebPosition){
-            case 1 : btn1.setText(selectedCeleb);
-            break;
-            case 2 : btn2.setText(selectedCeleb);
-                break;
-            case 3 : btn3.setText(selectedCeleb);
-                break;
-            case 4 : btn4.setText(selectedCeleb);
-                break;
-        }
+        positions = new ArrayList<>();
+        displayName(selectedCeleb);
+        correctCeleb = selectedCeleb;
 
         imageView.setImageBitmap(myBitmap);
 
+
         /*
-        // randomly get 3 ids with names names
+        // randomly get 3 ids with  names
         */
-//        String selectedCeleb = celebsName.get(rand.nextInt(celebsNameAndLink.size()+1));
 
+        List<String> fills = new ArrayList<>();
+        fills.add(selectedCeleb);
+        do{
+            String celeb = celebsName.get(rand.nextInt(celebsNameAndLink.size()-1));
+            if(!fills.contains(celeb)){
+                fills.add(celeb);
+                displayName(celeb);
+            }
 
+        } while(fills.size()!=4);
+    }
 
-        // display all
+    public void displayName(String celebName){
+        int celebPosition;
+        boolean isPositionOk;
+        do{
+            isPositionOk =false;
+            celebPosition = rand.nextInt(5);
+            if(!positions.contains(celebPosition)){
+                positions.add(celebPosition);
+                isPositionOk = true;
+            }
+
+        } while (celebPosition==0 || !isPositionOk);
+
+        switch (celebPosition){
+            case 1 : btn1.setText(celebName);
+                break;
+            case 2 : btn2.setText(celebName);
+                break;
+            case 3 : btn3.setText(celebName);
+                break;
+            case 4 : btn4.setText(celebName);
+                break;
+        }
+    }
+
+    public void onClick(View view) throws InterruptedException {
+        Button btn = (Button)view;
+        if(btn!=null && btn.getText().equals(correctCeleb)) {
+            Toast.makeText(this, "CORRECT", Toast.LENGTH_SHORT).show();
+            fillUiIn();
+        }else
+            Toast.makeText(this, "INCORRECT", Toast.LENGTH_SHORT).show();
     }
 }
