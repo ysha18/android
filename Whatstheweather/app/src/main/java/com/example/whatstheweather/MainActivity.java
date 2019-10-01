@@ -1,9 +1,12 @@
-package com.example.jsonprocessing;
+package com.example.whatstheweather;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,8 +20,9 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
-    public class DownloadTask extends AsyncTask<String,Void,String>{
+    TextView txtCity, txtResult ;
 
+    public class DownloadTask extends AsyncTask<String,Void,String> {
         @Override
         protected String doInBackground(String... strings) {
             String result = "";
@@ -53,16 +57,13 @@ public class MainActivity extends AppCompatActivity {
             Log.i("JSON", s);
             try {
                 JSONObject jsonObject = new JSONObject(s);
-                String weatherInfo = jsonObject.getString("weather");
-                Log.i("Weather Content", weatherInfo);
-
-                JSONArray arr = new JSONArray(weatherInfo);
-                for(int i=0; i<arr.length(); i++){
+                String weather = jsonObject.getString("weather");
+                JSONArray arr = new JSONArray(weather);
+                for(int i =0; i<arr.length(); i++){
                     JSONObject jsonPart = arr.getJSONObject(i);
-                    Log.i("MAIN", jsonPart.getString("main"));
-                    Log.i("DESCRIPTION", jsonPart.getString("description"));
+                    String message = jsonPart.getString("description");
+                    txtResult.setText(message);
                 }
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -73,15 +74,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        txtCity = findViewById(R.id.txtCity);
+        txtResult = findViewById(R.id.txtResult);
+    }
 
+    public void onClick(View view){
         DownloadTask task = new DownloadTask();
         try {
-            String result = task.execute("https://samples.openweathermap.org/data/2.5/weather?q=London&appid=b1b15e88fa797225412429c1c50c122a1").get();
-            System.out.println();
+            CharSequence s = txtCity.getText();
+            task.execute("https://samples.openweathermap.org/data/2.5/weather?q="+s+"&appid=b1b15e88fa797225412429c1c50c122a1").get();
+
+
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
     }
 }
