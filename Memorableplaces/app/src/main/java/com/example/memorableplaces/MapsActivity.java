@@ -2,7 +2,14 @@ package com.example.memorableplaces;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -11,9 +18,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.List;
+import java.util.Locale;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    LocationManager locationManager;
+    LocationListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +51,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+//                mMap.setOnMapLongClickListener(getApplicationContext());
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+
+        // Add a marker in some place in CA and move the camera
+        LatLng caPlace = new LatLng(36, -119);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(caPlace));
+        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+        try {
+            List<Address> listAddresses = geocoder.getFromLocation(caPlace.latitude, caPlace.longitude, 1);
+            String address = listAddresses.get(0).getThoroughfare() + " " + listAddresses.get(0).getLocality() + " " +
+                    listAddresses.get(0).getPostalCode()  + " " + listAddresses.get(0).getAdminArea();
+                    mMap.addMarker(new MarkerOptions().position(caPlace).title(address));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+//    @Override
+//    public void onMapLongClick(LatLng point) {
+//
+//        mMap.addMarker(new MarkerOptions()
+//                .position(point)
+//                .title(point.toString()));
+//
+//        Toast.makeText(getApplicationContext(),
+//                "New marker added@" + point.toString(), Toast.LENGTH_LONG)
+//                .show();
+//
+//    }
+
+
 }
