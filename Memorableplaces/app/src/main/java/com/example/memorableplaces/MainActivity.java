@@ -13,13 +13,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     ListView listViewPlaces;
-    ArrayList<String> listPlaces = new ArrayList<>();
+    static ArrayList<String> listPlaces = new ArrayList<>();
+    static ArrayList<LatLng> locations = new ArrayList<>();
+    static ArrayAdapter<String> arrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,19 +32,19 @@ public class MainActivity extends AppCompatActivity {
 
         listViewPlaces = findViewById(R.id.listViewPlaces);
         listPlaces.add("Add a new place");
+        locations.add(new LatLng(0,0));
+        if(getIntent().getStringArrayListExtra("placesAddresses")!=null)
+            listPlaces.addAll(getIntent().getStringArrayListExtra("placesAddresses"));
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listPlaces);
+        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listPlaces);
         listViewPlaces.setAdapter(arrayAdapter);
 
         listViewPlaces.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(),MapsActivity.class);
-
-                // for position 0, add go to map activity
-                if(position == 0)
-                    startActivity(intent);
-
+                intent.putExtra("placeNumber",position);
+                startActivity(intent);
             }
         });
 
